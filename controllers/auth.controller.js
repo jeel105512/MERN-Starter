@@ -1,6 +1,5 @@
 import passport from "passport";
 import User from "../models/user.model.js";
-import errorHandler from "../utils/error.js";
 
 export const register = async (req, res, next) => {
   const { name, email, password, profilePicture } = req.body;
@@ -15,9 +14,11 @@ export const register = async (req, res, next) => {
     }
 
     if (password.length < 6) {
-      return next(
-        errorHandler(400, "Password must be at least 6 characters long")
-      );
+      return res.status(400).json({
+        success: false,
+        status: 400,
+        message: "Password must be at least 6 characters long",
+      });
     }
 
     const newUser = new User({
@@ -91,36 +92,33 @@ export const google = passport.authenticate("google", {
 });
 
 export const googleCallback = (req, res, next) => {
-  passport.authenticate(
-    "google",
-    (err, user) => {
-      if (err) {
-        return next(err);
-      }
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          status: 404,
-          message: "User not found",
-        });
-      }
-
-      // Successful authentication, respond with JWT token
-      const payload = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      };
-
-      const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: "3h",
-      });
-
-      res.status(200).json({
-        success: true,
-        status: 200,
-        token,
+  passport.authenticate("google", (err, user) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        status: 404,
+        message: "User not found",
       });
     }
-  )(req, res, next);
+
+    // Successful authentication, respond with JWT token
+    const payload = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "3h",
+    });
+
+    res.status(200).json({
+      success: true,
+      status: 200,
+      token,
+    });
+  })(req, res, next);
 };
