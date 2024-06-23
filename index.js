@@ -2,7 +2,8 @@ import express, { urlencoded } from "express";
 import dotenv from "dotenv";
 import MongooseSetup from "./lib/MongooseSetup.js";
 import RoutesSetup from "./lib/RoutesSetup.js";
-import PassportSetup from "./lib/PassportSetup.js";
+// import PassportSetup from "./lib/PassportSetup.js";
+import "./lib/PassportSetup.js";
 import passport from "./lib/PassportSetup.js";
 
 dotenv.config();
